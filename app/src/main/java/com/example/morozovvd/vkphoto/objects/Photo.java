@@ -146,59 +146,26 @@ public class Photo {
         }
 
         public enum Type {
-            PROPORTIONAL_75 ("s"),
-            PROPORTIONAL_130 ("m"),
-            PROPORTIONAL_604 ("x"),
-            PROPORTIONAL_807 ("y"),
-            PROPORTIONAL_1280 ("z"),
-            PROPORTIONAL_2560 ("w"),
-            CUT_130 ("o"),
-            CUT_200 ("p"),
-            CUT_320 ("q"),
-            CUT_510 ("r");
+            PROPORTIONAL_75 ("s", 75, 75),
+            PROPORTIONAL_130 ("m", 130, 130),
+            PROPORTIONAL_604 ("x", 604, 604),
+            PROPORTIONAL_807 ("y", 807, 807),
+            PROPORTIONAL_1280 ("z", 1280, 1024),
+            PROPORTIONAL_2560 ("w", 2560, 2048),
+            CUT_130 ("o", 130, 130),
+            CUT_200 ("p", 200, 200),
+            CUT_320 ("q", 320, 320),
+            CUT_510 ("r", 510, 510),
+            UNKNOWN ("", 0, 0);
 
             private final String code;
             private final int maxWidth;
             private final int maxHeight;
 
-            Type(String code) {
+            Type(String code, int maxWidth, int maxHeight) {
                 this.code = code;
-                switch (code) {
-                    case "s":
-                        maxWidth = maxHeight = 75;
-                        break;
-                    case "m":
-                        maxWidth = maxHeight = 130;
-                        break;
-                    case "x":
-                        maxWidth = maxHeight = 604;
-                        break;
-                    case "y":
-                        maxWidth = maxHeight = 807;
-                        break;
-                    case "z":
-                        maxWidth = 1280;
-                        maxHeight = 1024;
-                        break;
-                    case "w":
-                        maxWidth = 2560;
-                        maxHeight = 2048;
-                        break;
-                    case "o":
-                        maxWidth = maxHeight = 130;
-                        break;
-                    case "p":
-                        maxWidth = maxHeight = 200;
-                        break;
-                    case "q":
-                        maxWidth = maxHeight = 320;
-                        break;
-                    case "r":
-                        maxWidth = maxHeight = 510;
-                        break;
-                    default:
-                        maxWidth = maxHeight = 0;
-                }
+                this.maxWidth = maxWidth;
+                this.maxHeight = maxHeight;
             }
 
             public String getCode() {

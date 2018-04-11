@@ -10,15 +10,12 @@ import android.util.Log;
 import android.widget.ImageView;
 import android.widget.Toast;
 
-import com.example.morozovvd.vkphoto.commands.GetMyPhotosCommand;
 import com.example.morozovvd.vkphoto.NetworkHelper;
 import com.example.morozovvd.vkphoto.R;
+import com.example.morozovvd.vkphoto.objects.Photo;
+import com.example.morozovvd.vkphoto.parsers.SinglePhotoParser;
 
-import java.io.IOException;
-
-import okhttp3.Call;
-import okhttp3.Callback;
-import okhttp3.Response;
+import org.json.JSONException;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -63,27 +60,34 @@ public class MainActivity extends AppCompatActivity {
 
     private void testVkApi() {
 
-        GetMyPhotosCommand command = new GetMyPhotosCommand(
-                1,
-                0,
-                false,
-                false,
-                false,
-                true,
-                true
-        );
+        try {
+            Photo testPhoto = (new SinglePhotoParser()).parse("{\"id\":456240187,\"album_id\":-7,\"owner_id\":214437822,\"sizes\":[{\"src\":\"https://pp.userap...1a8/-8Gzgbmzj64.jpg\",\"width\":130,\"height\":97,\"type\":\"m\"},{\"src\":\"https://pp.userap...1ad/RUaefenLP6U.jpg\",\"width\":130,\"height\":98,\"type\":\"o\"},{\"src\":\"https://pp.userap...1ae/WywBls5V9Lc.jpg\",\"width\":200,\"height\":150,\"type\":\"p\"},{\"src\":\"https://pp.userap...1af/TVkhpi54-nM.jpg\",\"width\":320,\"height\":240,\"type\":\"q\"},{\"src\":\"https://pp.userap...1b0/KSdzEQ4y9GU.jpg\",\"width\":510,\"height\":383,\"type\":\"r\"},{\"src\":\"https://pp.userap...1a7/X2olfQTd0-o.jpg\",\"width\":75,\"height\":56,\"type\":\"s\"},{\"src\":\"https://pp.userap...1ac/Y2QkeswSw2M.jpg\",\"width\":2560,\"height\":1920,\"type\":\"w\"},{\"src\":\"https://pp.userap...1a9/du89GvLYPRM.jpg\",\"width\":604,\"height\":453,\"type\":\"x\"},{\"src\":\"https://pp.userap...1aa/m2oJiFXwaUI.jpg\",\"width\":807,\"height\":605,\"type\":\"y\"},{\"src\":\"https://pp.userap...1ab/AN21uDZWY3I.jpg\",\"width\":1280,\"height\":960,\"type\":\"z\"}],\"text\":\"\",\"date\":1520372745,\"post_id\":181,\"likes\":{\"user_likes\":0,\"count\":5},\"reposts\":{\"count\":0},\"real_offset\":0}");
+            int a = 0;
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
 
-        command.execute(new Callback() {
-            @Override
-            public void onFailure(Call call, IOException e) {
-                mPhotosCallbackHandler.obtainMessage(0,"FAIL").sendToTarget();
-            }
-
-            @Override
-            public void onResponse(Call call, Response response) throws IOException {
-                mPhotosCallbackHandler.obtainMessage(0, "S U C C E S S").sendToTarget();
-                Log.d("VK_API_TEST", response.body().string());
-            }
-        });
+//        GetMyPhotosCommand command = new GetMyPhotosCommand(
+//                1,
+//                0,
+//                false,
+//                false,
+//                false,
+//                true,
+//                true
+//        );
+//
+//        command.execute(new Callback() {
+//            @Override
+//            public void onFailure(Call call, IOException e) {
+//                mPhotosCallbackHandler.obtainMessage(0,"FAIL").sendToTarget();
+//            }
+//
+//            @Override
+//            public void onResponse(Call call, Response response) throws IOException {
+//                mPhotosCallbackHandler.obtainMessage(0, "S U C C E S S").sendToTarget();
+//                Log.d("VK_API_TEST", response.body().string());
+//            }
+//        });
     }
 }
