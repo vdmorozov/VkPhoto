@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name">VkPhoto</string>
+    <string name="title_activity_oauth">OauthActivity</string>
+</resources>
