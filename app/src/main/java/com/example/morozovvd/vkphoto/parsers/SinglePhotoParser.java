@@ -1,6 +1,5 @@
 package com.example.morozovvd.vkphoto.parsers;
 
-import com.example.morozovvd.vkphoto.commands.VkApiCommand;
 import com.example.morozovvd.vkphoto.objects.Photo;
 
 import org.json.JSONArray;
@@ -11,20 +10,18 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
-public class SinglePhotoParser implements VkApiCommand.Parser<Photo> {
+public class SinglePhotoParser {
 
-    @Override
-    public Photo parse(String jsonString) throws JSONException {
-        final JSONObject obj = new JSONObject(jsonString);
-        final int id = obj.getInt("id");
-        final int albumId = obj.getInt("album_id");
-        final int ownerId = obj.getInt("owner_id");
-        final String text = obj.getString("text");
-        final int timestamp = obj.getInt("date");
+    public Photo parse(JSONObject jPhoto) throws JSONException {
+        final int id = jPhoto.getInt("id");
+        final int albumId = jPhoto.getInt("album_id");
+        final int ownerId = jPhoto.getInt("owner_id");
+        final String text = jPhoto.getString("text");
+        final int timestamp = jPhoto.getInt("date");
         final Date date = new Date((long)timestamp*1000);
 
-        Integer width = obj.optInt("width");
-        Integer height = obj.optInt("height");
+        Integer width = jPhoto.optInt("width");
+        Integer height = jPhoto.optInt("height");
         if (width == 0) width = null;
         if (height == 0) height = null;
 
@@ -32,13 +29,13 @@ public class SinglePhotoParser implements VkApiCommand.Parser<Photo> {
         Integer likesCount = null;
         Integer repostsCount = null;
 
-        final JSONObject likes = obj.optJSONObject("likes");
+        final JSONObject likes = jPhoto.optJSONObject("likes");
         if (likes != null) {
             currentUserLikes = likes.getInt("user_likes") == 1;
             likesCount = likes.getInt("count");
         }
 
-        final JSONObject reposts = obj.optJSONObject("reposts");
+        final JSONObject reposts = jPhoto.optJSONObject("reposts");
         if (reposts != null) {
             repostsCount = reposts.getInt("count");
         }
@@ -56,7 +53,7 @@ public class SinglePhotoParser implements VkApiCommand.Parser<Photo> {
                 currentUserLikes
         );
 
-        return parseCopies(obj, photo);
+        return parseCopies(jPhoto, photo);
     }
 
     private Photo parseCopies(JSONObject jPhoto, Photo photo) throws JSONException {
