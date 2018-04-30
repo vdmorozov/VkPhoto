@@ -1,11 +1,12 @@
 package com.example.morozovvd.vkphoto.commands;
 
+import com.example.morozovvd.vkphoto.objects.PhotoResponse;
 import com.example.morozovvd.vkphoto.parsers.PhotoListParser;
 
 import java.util.HashMap;
 import java.util.Map;
 
-public class GetAllPhotosCommand extends VkApiCommand {
+public class GetAllPhotosCommand extends VkApiCommand<PhotoResponse> {
 
     private static final String KEY_OWNER_ID = "owner_id";
     private static final String KEY_COUNT = "count";
