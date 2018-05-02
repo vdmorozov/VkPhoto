@@ -49,10 +49,10 @@ public class MainActivity extends AppCompatActivity {
         //todo: отслеживание состояния авторизации
         boolean authorized = (NetworkHelper.getToken() != null);
 
-        if (!authorized) {
-            Intent oauthActivityIntent = new Intent(this, OauthActivity.class);
-            startActivityForResult(oauthActivityIntent, AUTH_REQUEST);
-        }
+//        if (!authorized) {
+//            Intent oauthActivityIntent = new Intent(this, OauthActivity.class);
+//            startActivityForResult(oauthActivityIntent, AUTH_REQUEST);
+//        }
     }
 
     @Override
