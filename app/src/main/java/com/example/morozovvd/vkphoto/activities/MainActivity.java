@@ -10,16 +10,19 @@ import android.widget.Toast;
 import com.example.morozovvd.vkphoto.NetworkHelper;
 import com.example.morozovvd.vkphoto.PhotoRecyclerAdapter;
 import com.example.morozovvd.vkphoto.R;
-import com.example.morozovvd.vkphoto.tasks.MyTask;
+import com.example.morozovvd.vkphoto.commands.GetMyPhotosCommand;
+import com.example.morozovvd.vkphoto.tasks.VkApiTask;
 
 import java.lang.ref.WeakReference;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements VkApiTask.ResponseHandler {
 
     static final int AUTH_REQUEST = 1;
+    public static final String VK_PHOTO_LIST_TASK = "VK_PHOTO_LIST_TASK";
 
     private RecyclerView mPhotosRecyclerView;
-    private RecyclerView.LayoutManager mLayoutManager;
+    private GridLayoutManager mLayoutManager;
+    private PhotoRecyclerAdapter mPhotoRecyclerAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -42,29 +45,68 @@ public class MainActivity extends AppCompatActivity {
         photoResourceIds[6] = R.drawable.sample_6;
         photoResourceIds[7] = R.drawable.sample_7;
 
-        PhotoRecyclerAdapter adapter = new PhotoRecyclerAdapter(photoResourceIds);
-        mPhotosRecyclerView.setAdapter(adapter);
+        mPhotoRecyclerAdapter = new PhotoRecyclerAdapter(photoResourceIds);
+        mPhotosRecyclerView.setAdapter(mPhotoRecyclerAdapter);
+
+        mPhotosRecyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+                int position = mLayoutManager.findLastVisibleItemPosition();
+
+                if (position == mPhotoRecyclerAdapter.getItemCount() - 1) {
+                    //todo: download and add photos
+                    //mPresenter.onScrolledToLast();
+                }
+            }
+        });
 
 
         //todo: отслеживание состояния авторизации
         boolean authorized = (NetworkHelper.getToken() != null);
 
-//        if (!authorized) {
-//            Intent oauthActivityIntent = new Intent(this, OauthActivity.class);
-//            startActivityForResult(oauthActivityIntent, AUTH_REQUEST);
-//        }
+        if (!authorized) {
+            Intent oauthActivityIntent = new Intent(this, OauthActivity.class);
+            startActivityForResult(oauthActivityIntent, AUTH_REQUEST);
+        }
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == AUTH_REQUEST && resultCode == RESULT_OK) {
             NetworkHelper.setToken(data.getStringExtra(OauthActivity.EXTRA_TOKEN));
-            MyTask myTask = new MyTask(new WeakReference<>(this));
-            myTask.execute();
+
+            GetMyPhotosCommand command = new GetMyPhotosCommand(
+                    1,
+                    0,
+                    false,
+                    false,
+                    false,
+                    true,
+                    true
+            );
+
+            VkApiTask getPhotoListTask = new VkApiTask(
+                    command,
+                    VK_PHOTO_LIST_TASK,
+                    new WeakReference<>((VkApiTask.ResponseHandler) this)
+            );
+            getPhotoListTask.execute();
         }
     }
 
     public void showToast() {
         Toast.makeText(this, "TEST", Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public void onVkApiTaskResponse(Object response, String commandId) {
+        switch (commandId) {
+            case VK_PHOTO_LIST_TASK:
+                //todo: do something
+                showToast();
+                break;
+            default:
+                //do nothing
+        }
     }
 }
