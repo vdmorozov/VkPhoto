@@ -1,6 +1,7 @@
 package com.example.morozovvd.vkphoto.activities;
 
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.GridLayoutManager;
@@ -11,11 +12,18 @@ import com.example.morozovvd.vkphoto.NetworkHelper;
 import com.example.morozovvd.vkphoto.PhotoRecyclerAdapter;
 import com.example.morozovvd.vkphoto.R;
 import com.example.morozovvd.vkphoto.commands.GetMyPhotosCommand;
+import com.example.morozovvd.vkphoto.objects.Photo;
+import com.example.morozovvd.vkphoto.objects.PhotoResponse;
+import com.example.morozovvd.vkphoto.tasks.ImageDownloadTask;
 import com.example.morozovvd.vkphoto.tasks.VkApiTask;
 
 import java.lang.ref.WeakReference;
+import java.util.ArrayList;
+import java.util.List;
 
-public class MainActivity extends AppCompatActivity implements VkApiTask.ResponseHandler {
+import okhttp3.HttpUrl;
+
+public class MainActivity extends AppCompatActivity implements VkApiTask.ResponseHandler, ImageDownloadTask.ResponseHandler {
 
     static final int AUTH_REQUEST = 1;
     public static final String VK_PHOTO_LIST_TASK = "VK_PHOTO_LIST_TASK";
@@ -35,17 +43,17 @@ public class MainActivity extends AppCompatActivity implements VkApiTask.Respons
         mLayoutManager = new GridLayoutManager(this, 2);
         mPhotosRecyclerView.setLayoutManager(mLayoutManager);
 
-        int[] photoResourceIds = new int[8];
-        photoResourceIds[0] = R.drawable.sample_0;
-        photoResourceIds[1] = R.drawable.sample_1;
-        photoResourceIds[2] = R.drawable.sample_2;
-        photoResourceIds[3] = R.drawable.sample_3;
-        photoResourceIds[4] = R.drawable.sample_4;
-        photoResourceIds[5] = R.drawable.sample_5;
-        photoResourceIds[6] = R.drawable.sample_6;
-        photoResourceIds[7] = R.drawable.sample_7;
+//        int[] photoResourceIds = new int[8];
+//        photoResourceIds[0] = R.drawable.sample_0;
+//        photoResourceIds[1] = R.drawable.sample_1;
+//        photoResourceIds[2] = R.drawable.sample_2;
+//        photoResourceIds[3] = R.drawable.sample_3;
+//        photoResourceIds[4] = R.drawable.sample_4;
+//        photoResourceIds[5] = R.drawable.sample_5;
+//        photoResourceIds[6] = R.drawable.sample_6;
+//        photoResourceIds[7] = R.drawable.sample_7;
 
-        mPhotoRecyclerAdapter = new PhotoRecyclerAdapter(photoResourceIds);
+        mPhotoRecyclerAdapter = new PhotoRecyclerAdapter();
         mPhotosRecyclerView.setAdapter(mPhotoRecyclerAdapter);
 
         mPhotosRecyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
@@ -80,7 +88,7 @@ public class MainActivity extends AppCompatActivity implements VkApiTask.Respons
                     0,
                     false,
                     false,
-                    false,
+                    true,
                     true,
                     true
             );
@@ -94,8 +102,8 @@ public class MainActivity extends AppCompatActivity implements VkApiTask.Respons
         }
     }
 
-    public void showToast() {
-        Toast.makeText(this, "TEST", Toast.LENGTH_SHORT).show();
+    public void showToast(String text) {
+        Toast.makeText(this, text, Toast.LENGTH_SHORT).show();
     }
 
     @Override
@@ -103,10 +111,32 @@ public class MainActivity extends AppCompatActivity implements VkApiTask.Respons
         switch (commandId) {
             case VK_PHOTO_LIST_TASK:
                 //todo: do something
-                showToast();
+                showToast("got list");
+
+                PhotoResponse photoResponse = (PhotoResponse) response;
+                List<Photo> photoList = photoResponse.getList();
+
+                if (photoList.size() < 1) break;
+
+                Photo photo = photoList.get(0);
+                String urlString = photo.getCopy(Photo.Copy.Type.CUT_320).getUrl();
+                HttpUrl url = HttpUrl.parse(urlString);
+                ImageDownloadTask imageDownloadTask = new ImageDownloadTask(
+                        url,
+                        0,
+                        new WeakReference<ImageDownloadTask.ResponseHandler>(this)
+                );
+                imageDownloadTask.execute();
                 break;
             default:
                 //do nothing
         }
+    }
+
+    @Override
+    public void onImageDownloaded(Bitmap image, int imageId, HttpUrl imageUrl) {
+        List<Bitmap> bitmaps = new ArrayList<>();
+        bitmaps.add(image);
+        mPhotoRecyclerAdapter.setPhotos(bitmaps);
     }
 }

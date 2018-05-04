@@ -1,18 +1,18 @@
 package com.example.morozovvd.vkphoto;
 
+import android.graphics.Bitmap;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 
-import com.example.morozovvd.vkphoto.objects.Photo;
-
+import java.util.ArrayList;
 import java.util.List;
 
 public class PhotoRecyclerAdapter extends RecyclerView.Adapter {
 
-    private int[] photoResourceIds;
+    private List<Bitmap> mBitmapList;
 
     public static class PhotoViewHolder extends RecyclerView.ViewHolder {
         ImageView mImageView;
@@ -23,8 +23,14 @@ public class PhotoRecyclerAdapter extends RecyclerView.Adapter {
         }
     }
 
-    public PhotoRecyclerAdapter(int[] photoResourceIds) {
-        this.photoResourceIds = photoResourceIds;
+    public PhotoRecyclerAdapter() {
+        this.mBitmapList = new ArrayList<>();
+    }
+
+    public void setPhotos(List<Bitmap> bitmaps) {
+        mBitmapList.clear();
+        mBitmapList.addAll(bitmaps);
+        notifyDataSetChanged();
     }
 
     @NonNull
@@ -37,11 +43,11 @@ public class PhotoRecyclerAdapter extends RecyclerView.Adapter {
     @Override
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
         PhotoViewHolder photoViewHolder = (PhotoViewHolder) holder;
-        photoViewHolder.mImageView.setImageResource(photoResourceIds[position]);
+        photoViewHolder.mImageView.setImageBitmap(mBitmapList.get(position));
     }
 
     @Override
     public int getItemCount() {
-        return photoResourceIds.length;
+        return mBitmapList.size();
     }
 }
