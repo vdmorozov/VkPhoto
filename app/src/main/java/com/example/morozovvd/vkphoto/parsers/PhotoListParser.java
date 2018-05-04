@@ -18,7 +18,7 @@ public class PhotoListParser implements VkApiCommand.Parser<PhotoResponse> {
         final JSONObject root = new JSONObject(jsonString);
         final JSONObject response = root.getJSONObject("response");
         final int totalCount = response.getInt("count");
-        final boolean hasNext = response.getInt("more") == 1;
+        final boolean hasNext = response.optInt("more") == 1;
 
         final JSONArray jPhotos = response.getJSONArray("items");
 
