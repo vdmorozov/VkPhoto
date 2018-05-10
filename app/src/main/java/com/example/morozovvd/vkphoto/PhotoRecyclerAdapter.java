@@ -4,6 +4,7 @@ import android.graphics.Bitmap;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
+import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 
@@ -24,6 +25,7 @@ public class PhotoRecyclerAdapter extends RecyclerView.Adapter {
 
     private List<Photo> mPhotoList;
     private Map<Integer, Bitmap> mBitmapCache;
+    private OnPhotoClickListener onPhotoClickListener;
 
     public static class PhotoViewHolder extends RecyclerView.ViewHolder {
         ImageView mImageView;
@@ -50,6 +52,10 @@ public class PhotoRecyclerAdapter extends RecyclerView.Adapter {
         notifyDataSetChanged();
     }
 
+    public void addOnPhotoClickListener(OnPhotoClickListener listener) {
+        onPhotoClickListener = listener;
+    }
+
     @NonNull
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
@@ -64,12 +70,25 @@ public class PhotoRecyclerAdapter extends RecyclerView.Adapter {
         final ImageView imageView = photoViewHolder.mImageView;
         final Photo photo = mPhotoList.get(position);
 
-        //todo: убрать говнокодище
+        //todo: вынести задание listener-а в метод addOnPhotoClickListener()
+        //todo: попробовать перенести связывание listener-а с фоткой внутрь ViewHolder
+
+        imageView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (onPhotoClickListener != null) {
+                    onPhotoClickListener.onPhotoClick(photo);
+                }
+            }
+        });
+
+        //todo: убрать это говнокодище
 
         Bitmap bitmap = null;
         try {
             bitmap = mBitmapCache.get(position);
-        } catch (IndexOutOfBoundsException ignored) { }
+        } catch (IndexOutOfBoundsException ignored) {
+        }
 
         if (bitmap != null) imageView.setImageBitmap(bitmap);
         else {
@@ -96,5 +115,9 @@ public class PhotoRecyclerAdapter extends RecyclerView.Adapter {
     @Override
     public int getItemCount() {
         return mPhotoList.size();
+    }
+
+    public interface OnPhotoClickListener {
+        void onPhotoClick(Photo photo);
     }
 }
