@@ -57,9 +57,8 @@ public class MainActivity extends AppCompatActivity implements VkApiTask.Respons
         mPhotoRecyclerAdapter.addOnPhotoClickListener(new PhotoRecyclerAdapter.OnPhotoClickListener() {
             @Override
             public void onPhotoClick(Photo photo) {
-                Intent fullscreenActivityIntent = new Intent(MainActivity.this, FullscreenActivity.class);
-                //todo: передача фото/позиции
-                startActivity(fullscreenActivityIntent);
+                Intent intent = FullscreenActivity.getCallingIntent(MainActivity.this, photo);
+                startActivity(intent);
             }
         });
 

@@ -3,20 +3,15 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#0099cc"
+    android:background="@color/colorBackgroundBlack"
     tools:context=".activities.FullscreenActivity">
 
-    <!-- The primary full-screen view. This can be replaced with whatever view
-         is needed to present your content, e.g. VideoView, SurfaceView,
-         TextureView, etc. -->
-    <TextView android:id="@+id/fullscreen_content"
+    <ImageView
+        android:id="@+id/fullscreen_photo"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:keepScreenOn="true"
-        android:textColor="#33b5e5"
-        android:textStyle="bold"
-        android:textSize="50sp"
+        android:keepScreenOn="false"
         android:gravity="center"
-        android:text="dummy" />
+        android:contentDescription="Hello there!" />
 
 </FrameLayout>

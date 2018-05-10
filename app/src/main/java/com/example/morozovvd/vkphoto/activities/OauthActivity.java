@@ -2,6 +2,7 @@ package com.example.morozovvd.vkphoto.activities;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Color;
@@ -41,7 +42,6 @@ public class OauthActivity extends AppCompatActivity {
 
         loadPage();
     }
-
 
     @SuppressLint("SetJavaScriptEnabled")
     private void loadPage() {
