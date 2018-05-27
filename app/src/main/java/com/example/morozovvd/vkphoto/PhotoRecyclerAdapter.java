@@ -1,5 +1,6 @@
 package com.example.morozovvd.vkphoto;
 
+import android.database.DataSetObserver;
 import android.graphics.Bitmap;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
@@ -12,9 +13,7 @@ import com.example.morozovvd.vkphoto.objects.Photo;
 import com.example.morozovvd.vkphoto.tasks.ImageDownloadTask;
 
 import java.lang.ref.WeakReference;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import okhttp3.HttpUrl;
@@ -23,7 +22,7 @@ import static com.example.morozovvd.vkphoto.activities.MainActivity.COPY_TYPE_FO
 
 public class PhotoRecyclerAdapter extends RecyclerView.Adapter {
 
-    private List<Photo> mPhotoList;
+    private PhotoManager mPhotoManager;
     private Map<Integer, Bitmap> mBitmapCache;
     private OnPhotoClickListener onPhotoClickListener;
 
@@ -36,20 +35,15 @@ public class PhotoRecyclerAdapter extends RecyclerView.Adapter {
         }
     }
 
-    public PhotoRecyclerAdapter() {
-        this.mPhotoList = new ArrayList<>();
-        this.mBitmapCache = new HashMap<>();
-    }
-
-    public void setPhotos(List<Photo> photos) {
-        mPhotoList.clear();
-        mPhotoList.addAll(photos);
-        notifyDataSetChanged();
-    }
-
-    public void addPhotos(List<Photo> photos) {
-        mPhotoList.addAll(photos);
-        notifyDataSetChanged();
+    public PhotoRecyclerAdapter(PhotoManager manager) {
+        mPhotoManager = manager;
+        manager.registerObserver(new DataSetObserver() {
+            @Override
+            public void onChanged() {
+                notifyDataSetChanged();
+            }
+        });
+        mBitmapCache = new HashMap<>();
     }
 
     public void addOnPhotoClickListener(OnPhotoClickListener listener) {
@@ -59,25 +53,25 @@ public class PhotoRecyclerAdapter extends RecyclerView.Adapter {
     @NonNull
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        ImageView view = (ImageView) LayoutInflater.from(parent.getContext()).inflate(R.layout.item_photo, parent, false);
+        ImageView view = (ImageView) LayoutInflater.from(parent.getContext()).inflate(R.layout.item_photo_preview, parent, false);
         return new PhotoViewHolder(view);
     }
 
     @Override
-    public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
-        final int index = position;
+    public void onBindViewHolder(@NonNull final RecyclerView.ViewHolder holder, int position) {
         final PhotoViewHolder photoViewHolder = (PhotoViewHolder) holder;
         final ImageView imageView = photoViewHolder.mImageView;
-        final Photo photo = mPhotoList.get(position);
+        final Photo photo = mPhotoManager.get(position);
 
         //todo: вынести задание listener-а в метод addOnPhotoClickListener()
         //todo: попробовать перенести связывание listener-а с фоткой внутрь ViewHolder
+        //todo: лучше понять, почему надо использовать holder.getAdapterPosition()
 
         imageView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if (onPhotoClickListener != null) {
-                    onPhotoClickListener.onPhotoClick(photo);
+                    onPhotoClickListener.onPhotoClick(photo, holder.getAdapterPosition());
                 }
             }
         });
@@ -96,7 +90,7 @@ public class PhotoRecyclerAdapter extends RecyclerView.Adapter {
                 @Override
                 public void onImageDownloaded(Bitmap image, int imageId, HttpUrl imageUrl) {
                     imageView.setImageBitmap(image);
-                    mBitmapCache.put(index, image);
+                    mBitmapCache.put(holder.getAdapterPosition(), image);
                 }
             };
 
@@ -114,10 +108,10 @@ public class PhotoRecyclerAdapter extends RecyclerView.Adapter {
 
     @Override
     public int getItemCount() {
-        return mPhotoList.size();
+        return mPhotoManager.getCount();
     }
 
     public interface OnPhotoClickListener {
-        void onPhotoClick(Photo photo);
+        void onPhotoClick(Photo photo, int position);
     }
 }
