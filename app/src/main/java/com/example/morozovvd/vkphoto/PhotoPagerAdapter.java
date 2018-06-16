@@ -44,20 +44,24 @@ public class PhotoPagerAdapter extends PagerAdapter {
         final ImageView imageView = (ImageView) LayoutInflater.from(container.getContext())
                 .inflate(R.layout.item_photo_fullscreen, container, false);
 
-        ImageDownloadTask.ResponseHandler handler = new ImageDownloadTask.ResponseHandler() {
-            @Override
-            public void onImageDownloaded(Bitmap image, int imageId, HttpUrl imageUrl) {
-                imageView.setImageBitmap(image);
-                //mBitmapCache.put(index, image);
-            }
-        };
+
+        ImageDownloadTask.ResponseHandler<WeakReference<ImageView>> handler =
+                new ImageDownloadTask.ResponseHandler<WeakReference<ImageView>>() {
+                    @Override
+                    public void onImageDownloaded(Bitmap image, HttpUrl imageUrl, WeakReference<ImageView> callbackParams) {
+                        ImageView view = callbackParams.get();
+                        if (view != null) {
+                            view.setImageBitmap(image);
+                        }
+                    }
+                };
 
         String urlString = photo.getCopy(COPY_TYPE_FOR_FULLSCREEN).getUrl();
         HttpUrl url = HttpUrl.parse(urlString);
-        ImageDownloadTask imageDownloadTask = new ImageDownloadTask(
+        ImageDownloadTask<WeakReference<ImageView>> imageDownloadTask = new ImageDownloadTask<>(
                 url,
-                0,
-                new WeakReference<>(handler)
+                handler,
+                new WeakReference<>(imageView)
         );
         imageDownloadTask.execute();
 

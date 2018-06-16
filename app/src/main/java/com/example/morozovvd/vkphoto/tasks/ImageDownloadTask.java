@@ -8,7 +8,6 @@ import com.example.morozovvd.vkphoto.NetworkHelper;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.lang.ref.WeakReference;
 
 import okhttp3.HttpUrl;
 import okhttp3.OkHttpClient;
@@ -16,16 +15,17 @@ import okhttp3.Request;
 import okhttp3.Response;
 import okhttp3.ResponseBody;
 
-public class ImageDownloadTask extends AsyncTask<Void, Void, Bitmap> {
+//todo: не слишком ли универсально, может сразу хранить ссылку на ImageView?
+public class ImageDownloadTask<CallbackParamsT> extends AsyncTask<Void, Void, Bitmap> {
 
     private HttpUrl imageUrl;
-    private int imageId;
-    private WeakReference<ResponseHandler> handlerWeakRef;
+    private ResponseHandler<CallbackParamsT> responseHandler;
+    private CallbackParamsT callbackParams;
 
-    public ImageDownloadTask(HttpUrl imageUrl, int imageId, WeakReference<ResponseHandler> handlerWeakRef) {
+    public ImageDownloadTask(HttpUrl imageUrl, ResponseHandler<CallbackParamsT> handler, CallbackParamsT callbackParams) {
         this.imageUrl = imageUrl;
-        this.imageId = imageId;
-        this.handlerWeakRef = handlerWeakRef;
+        this.callbackParams = callbackParams;
+        this.responseHandler = handler;
     }
 
     @Override
@@ -51,14 +51,11 @@ public class ImageDownloadTask extends AsyncTask<Void, Void, Bitmap> {
 
     @Override
     protected void onPostExecute(Bitmap bitmap) {
-        ResponseHandler handler = handlerWeakRef.get();
-        if (handler != null && bitmap != null) {
-            handler.onImageDownloaded(bitmap, imageId, imageUrl);
-        }
+        responseHandler.onImageDownloaded(bitmap, imageUrl, callbackParams);
     }
 
-    public interface ResponseHandler {
+    public interface ResponseHandler<T> {
         //todo: стоит ли передавать урл?
-        void onImageDownloaded(Bitmap image, int imageId, HttpUrl imageUrl);
+        void onImageDownloaded(Bitmap image, HttpUrl imageUrl, T callbackParams);
     }
 }
