@@ -13,9 +13,10 @@ import com.example.morozovvd.vkphoto.objects.Photo;
 import com.example.morozovvd.vkphoto.tasks.ImageDownloadTask;
 
 import java.lang.ref.WeakReference;
-import okhttp3.HttpUrl;
+import java.util.ArrayList;
+import java.util.List;
 
-import static com.example.morozovvd.vkphoto.activities.FullscreenActivity.COPY_TYPE_FOR_FULLSCREEN;
+import okhttp3.HttpUrl;
 
 public class PhotoPagerAdapter extends PagerAdapter {
 
@@ -56,22 +57,28 @@ public class PhotoPagerAdapter extends PagerAdapter {
                     }
                 };
 
-        String urlString = photo.getCopy(COPY_TYPE_FOR_FULLSCREEN).getUrl();
-        HttpUrl url = HttpUrl.parse(urlString);
-        ImageDownloadTask<WeakReference<ImageView>> imageDownloadTask = new ImageDownloadTask<>(
-                url,
-                handler,
-                new WeakReference<>(imageView)
-        );
-        imageDownloadTask.execute();
+        Photo.Copy fullscreenCopy = getFullscreenCopy(photo);
+        String urlString;
+        if (fullscreenCopy != null) {
+            urlString = fullscreenCopy.getUrl();
+            HttpUrl url = HttpUrl.parse(urlString);
+            ImageDownloadTask<WeakReference<ImageView>> imageDownloadTask = new ImageDownloadTask<>(
+                    url,
+                    handler,
+                    new WeakReference<>(imageView)
+            );
+            imageDownloadTask.execute();
 
-        if (clickListener != null) {
-            imageView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    clickListener.onItemClick(position);
-                }
-            });
+            if (clickListener != null) {
+                imageView.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        clickListener.onItemClick(position);
+                    }
+                });
+            }
+        } else {
+            imageView.setImageResource(R.drawable.ic_broken_image_black_24dp);
         }
 
         container.addView(imageView, ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
@@ -91,6 +98,23 @@ public class PhotoPagerAdapter extends PagerAdapter {
     @Override
     public boolean isViewFromObject(@NonNull View view, @NonNull Object object) {
         return view.equals(object);
+    }
+
+    private Photo.Copy getFullscreenCopy(Photo photo) {
+        //todo: вынести в константы (?)
+        List<Photo.Copy.Type> fullscreenTypesByPriority = new ArrayList<>();
+        fullscreenTypesByPriority.add(Photo.Copy.Type.PROPORTIONAL_1280);
+        fullscreenTypesByPriority.add(Photo.Copy.Type.PROPORTIONAL_807);
+        fullscreenTypesByPriority.add(Photo.Copy.Type.PROPORTIONAL_604);
+        fullscreenTypesByPriority.add(Photo.Copy.Type.PROPORTIONAL_130);
+        fullscreenTypesByPriority.add(Photo.Copy.Type.PROPORTIONAL_75);
+
+        Photo.Copy copy = null;
+        for (Photo.Copy.Type type : fullscreenTypesByPriority) {
+            copy = photo.getCopy(type);
+            if (copy != null) break;
+        }
+        return copy;
     }
 
     public interface OnItemClickListener {

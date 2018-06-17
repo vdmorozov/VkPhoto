@@ -19,7 +19,6 @@ public class FullscreenActivity extends AppCompatActivity {
     public static final String EXTRA_POSITION = "position";
 
     public static final int INITIAL_HIDE_DELAY = 100;
-    public static final Photo.Copy.Type COPY_TYPE_FOR_FULLSCREEN = Photo.Copy.Type.PROPORTIONAL_1280;
 
     private boolean mVisible;
     private ViewPager mViewPager;
