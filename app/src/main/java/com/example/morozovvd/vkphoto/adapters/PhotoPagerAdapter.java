@@ -47,40 +47,47 @@ public class PhotoPagerAdapter extends PagerAdapter {
         final ImageView imageView = (ImageView) LayoutInflater.from(container.getContext())
                 .inflate(R.layout.item_photo_fullscreen, container, false);
 
+        if (clickListener != null) {
+            imageView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    clickListener.onItemClick(position);
+                }
+            });
+        }
 
-        ImageDownloadTask.ResponseHandler<WeakReference<ImageView>> handler =
-                new ImageDownloadTask.ResponseHandler<WeakReference<ImageView>>() {
-                    @Override
-                    public void onImageDownloaded(Bitmap image, HttpUrl imageUrl, WeakReference<ImageView> callbackParams) {
-                        ImageView view = callbackParams.get();
-                        if (view != null) {
-                            view.setImageBitmap(image);
-                        }
-                    }
-                };
-
-        Photo.Copy fullscreenCopy = getFullscreenCopy(photo);
-        String urlString;
-        if (fullscreenCopy != null) {
-            urlString = fullscreenCopy.getUrl();
-            HttpUrl url = HttpUrl.parse(urlString);
-            ImageDownloadTask<WeakReference<ImageView>> imageDownloadTask = new ImageDownloadTask<>(
-                    url,
-                    handler,
-                    new WeakReference<>(imageView)
-            );
-            imageDownloadTask.execute();
-
-            if (clickListener != null) {
-                imageView.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        clickListener.onItemClick(position);
-                    }
-                });
-            }
+        //todo: привести в порядок это дерьмо
+        Bitmap cached = mPhotoManager.getFullscreenCache().get(position);
+        if (cached != null) {
+            imageView.setImageBitmap(cached);
         } else {
-            imageView.setImageResource(R.drawable.ic_broken_image_black_24dp);
+            ImageDownloadTask.ResponseHandler<WeakReference<ImageView>> handler =
+                    new ImageDownloadTask.ResponseHandler<WeakReference<ImageView>>() {
+                        @Override
+                        public void onImageDownloaded(Bitmap image, HttpUrl imageUrl, WeakReference<ImageView> callbackParams) {
+                            mPhotoManager.getFullscreenCache().put(position, image);
+                            ImageView view = callbackParams.get();
+                            if (view != null) {
+                                view.setImageBitmap(image);
+                            }
+                        }
+                    };
+
+            Photo.Copy fullscreenCopy = getFullscreenCopy(photo);
+            String urlString;
+
+            if (fullscreenCopy != null) {
+                urlString = fullscreenCopy.getUrl();
+                HttpUrl url = HttpUrl.parse(urlString);
+                ImageDownloadTask<WeakReference<ImageView>> imageDownloadTask = new ImageDownloadTask<>(
+                        url,
+                        handler,
+                        new WeakReference<>(imageView)
+                );
+                imageDownloadTask.execute();
+            } else {
+                imageView.setImageResource(R.drawable.ic_broken_image_black_24dp);
+            }
         }
 
         container.addView(imageView, ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);

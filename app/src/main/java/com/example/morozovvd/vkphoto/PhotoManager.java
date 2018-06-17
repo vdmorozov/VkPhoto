@@ -2,6 +2,8 @@ package com.example.morozovvd.vkphoto;
 
 import android.database.DataSetObservable;
 import android.database.DataSetObserver;
+import android.graphics.Bitmap;
+import android.util.LruCache;
 
 import com.example.morozovvd.vkphoto.commands.GetMyPhotosCommand;
 import com.example.morozovvd.vkphoto.objects.Photo;
@@ -22,10 +24,12 @@ public class PhotoManager implements VkApiTask.ResponseHandler {
     private int page = -1;
     private List<Photo> photos;
     private DataSetObservable observable;
+    private LruCache<Integer, Bitmap> fullscreenCache;
 
     private PhotoManager() {
         photos = new ArrayList<>();
         observable = new DataSetObservable();
+        fullscreenCache = new LruCache<>(PAGE_SIZE);
     }
 
     public static PhotoManager getInstance() {
@@ -39,6 +43,10 @@ public class PhotoManager implements VkApiTask.ResponseHandler {
 
     public Photo get(int position) {
         return photos.get(position);
+    }
+
+    public LruCache<Integer, Bitmap> getFullscreenCache() {
+        return fullscreenCache;
     }
 
     public void registerObserver(DataSetObserver observer) {
