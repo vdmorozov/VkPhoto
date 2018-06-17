@@ -8,7 +8,7 @@ import android.support.v7.widget.RecyclerView;
 
 import com.example.morozovvd.vkphoto.NetworkHelper;
 import com.example.morozovvd.vkphoto.PhotoManager;
-import com.example.morozovvd.vkphoto.PhotoRecyclerAdapter;
+import com.example.morozovvd.vkphoto.adapters.PhotoRecyclerAdapter;
 import com.example.morozovvd.vkphoto.R;
 import com.example.morozovvd.vkphoto.objects.Photo;
 

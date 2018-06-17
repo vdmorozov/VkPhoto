@@ -10,9 +10,8 @@ import android.os.Handler;
 import android.view.View;
 
 import com.example.morozovvd.vkphoto.PhotoManager;
-import com.example.morozovvd.vkphoto.PhotoPagerAdapter;
+import com.example.morozovvd.vkphoto.adapters.PhotoPagerAdapter;
 import com.example.morozovvd.vkphoto.R;
-import com.example.morozovvd.vkphoto.objects.Photo;
 
 public class FullscreenActivity extends AppCompatActivity {
 
