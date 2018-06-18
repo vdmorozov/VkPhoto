@@ -74,10 +74,9 @@ public class PhotoPagerAdapter extends PagerAdapter {
                     };
 
             Photo.Copy fullscreenCopy = getFullscreenCopy(photo);
-            String urlString;
 
             if (fullscreenCopy != null) {
-                urlString = fullscreenCopy.getUrl();
+                String urlString = fullscreenCopy.getUrl();
                 HttpUrl url = HttpUrl.parse(urlString);
                 ImageDownloadTask<WeakReference<ImageView>> imageDownloadTask = new ImageDownloadTask<>(
                         url,

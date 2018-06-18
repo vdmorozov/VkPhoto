@@ -25,7 +25,6 @@ import static com.example.morozovvd.vkphoto.activities.MainActivity.COPY_TYPE_FO
 public class PhotoRecyclerAdapter extends RecyclerView.Adapter {
 
     private PhotoManager mPhotoManager;
-    private Map<Integer, Bitmap> mBitmapCache;
     private OnPhotoClickListener onPhotoClickListener;
 
     public static class PhotoViewHolder extends RecyclerView.ViewHolder {
@@ -45,7 +44,6 @@ public class PhotoRecyclerAdapter extends RecyclerView.Adapter {
                 notifyDataSetChanged();
             }
         });
-        mBitmapCache = new HashMap<>();
     }
 
     public void addOnPhotoClickListener(OnPhotoClickListener listener) {
@@ -60,7 +58,7 @@ public class PhotoRecyclerAdapter extends RecyclerView.Adapter {
     }
 
     @Override
-    public void onBindViewHolder(@NonNull final RecyclerView.ViewHolder holder, int position) {
+    public void onBindViewHolder(@NonNull final RecyclerView.ViewHolder holder, final int position) {
         final PhotoViewHolder photoViewHolder = (PhotoViewHolder) holder;
         final ImageView imageView = photoViewHolder.mImageView;
         final Photo photo = mPhotoManager.get(position);
@@ -80,18 +78,15 @@ public class PhotoRecyclerAdapter extends RecyclerView.Adapter {
 
         //todo: убрать это говнокодище
 
-        Bitmap bitmap = null;
-        try {
-            bitmap = mBitmapCache.get(position);
-        } catch (IndexOutOfBoundsException ignored) {
-        }
-
-        if (bitmap != null) imageView.setImageBitmap(bitmap);
-        else {
+        Bitmap cached = mPhotoManager.getThumbnailCache().get(position);
+        if (cached != null) {
+            imageView.setImageBitmap(cached);
+        } else {
             ImageDownloadTask.ResponseHandler<WeakReference<ImageView>> handler =
                     new ImageDownloadTask.ResponseHandler<WeakReference<ImageView>>() {
                         @Override
                         public void onImageDownloaded(Bitmap image, HttpUrl imageUrl, WeakReference<ImageView> callbackParams) {
+                            mPhotoManager.getThumbnailCache().put(position, image);
                             ImageView view = callbackParams.get();
                             if (view != null) {
                                 view.setImageBitmap(image);

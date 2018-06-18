@@ -25,11 +25,13 @@ public class PhotoManager implements VkApiTask.ResponseHandler {
     private List<Photo> photos;
     private DataSetObservable observable;
     private LruCache<Integer, Bitmap> fullscreenCache;
+    private LruCache<Integer, Bitmap> thumbnailCache;
 
     private PhotoManager() {
         photos = new ArrayList<>();
         observable = new DataSetObservable();
         fullscreenCache = new LruCache<>(PAGE_SIZE);
+        thumbnailCache = new LruCache<>(PAGE_SIZE * 3);
     }
 
     public static PhotoManager getInstance() {
@@ -47,6 +49,10 @@ public class PhotoManager implements VkApiTask.ResponseHandler {
 
     public LruCache<Integer, Bitmap> getFullscreenCache() {
         return fullscreenCache;
+    }
+
+    public LruCache<Integer, Bitmap> getThumbnailCache() {
+        return thumbnailCache;
     }
 
     public void registerObserver(DataSetObserver observer) {
