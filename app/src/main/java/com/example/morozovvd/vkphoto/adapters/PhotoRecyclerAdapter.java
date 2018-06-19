@@ -67,6 +67,8 @@ public class PhotoRecyclerAdapter extends RecyclerView.Adapter {
         //todo: попробовать перенести связывание listener-а с фоткой внутрь ViewHolder
         //todo: лучше понять, почему надо использовать holder.getAdapterPosition()
 
+        imageView.setImageBitmap(null);
+
         imageView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

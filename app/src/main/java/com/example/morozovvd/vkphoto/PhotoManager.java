@@ -22,6 +22,8 @@ public class PhotoManager implements VkApiTask.ResponseHandler {
     private static PhotoManager instance;
 
     private int page = -1;
+    private boolean loadingInProgress = false;
+    private boolean loadedAll = false;
     private List<Photo> photos;
     private DataSetObservable observable;
     private LruCache<Integer, Bitmap> fullscreenCache;
@@ -60,6 +62,9 @@ public class PhotoManager implements VkApiTask.ResponseHandler {
     }
 
     public void fetchNextPage() {
+        if (loadingInProgress || loadedAll) return;
+
+        loadingInProgress = true;
         page++;
         //для увеличения производительности можно сделать команды мутабельными и
         //переиспользовать команду, меняя count и offset
@@ -85,7 +90,10 @@ public class PhotoManager implements VkApiTask.ResponseHandler {
     public void onVkApiTaskResponse(Object response, String commandId) {
         switch (commandId) {
             case FETCH_NEXT_PAGE:
+                loadingInProgress = false;
                 PhotoResponse photoResponse = (PhotoResponse) response;
+                loadedAll = photoResponse.getList().isEmpty();
+                if (loadedAll) break;
                 photos.addAll(photoResponse.getList());
                 observable.notifyChanged();
                 break;
