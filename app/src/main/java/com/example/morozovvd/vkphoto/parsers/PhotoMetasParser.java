@@ -1,8 +1,8 @@
 package com.example.morozovvd.vkphoto.parsers;
 
 import com.example.morozovvd.vkphoto.commands.VkApiCommand;
-import com.example.morozovvd.vkphoto.objects.Photo;
-import com.example.morozovvd.vkphoto.objects.PhotoResponse;
+import com.example.morozovvd.vkphoto.objects.PhotoMeta;
+import com.example.morozovvd.vkphoto.objects.PhotoMetasResponse;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -11,10 +11,10 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.List;
 
-public class PhotoListParser implements VkApiCommand.Parser<PhotoResponse> {
+public class PhotoMetasParser implements VkApiCommand.Parser<PhotoMetasResponse> {
 
     @Override
-    public PhotoResponse parse(String jsonString) throws JSONException {
+    public PhotoMetasResponse parse(String jsonString) throws JSONException {
         final JSONObject root = new JSONObject(jsonString);
         final JSONObject response = root.getJSONObject("response");
         final int totalCount = response.getInt("count");
@@ -22,13 +22,13 @@ public class PhotoListParser implements VkApiCommand.Parser<PhotoResponse> {
 
         final JSONArray jPhotos = response.getJSONArray("items");
 
-        List<Photo> photos = new ArrayList<>();
-        SinglePhotoParser singlePhotoParser = new SinglePhotoParser();
+        List<PhotoMeta> photoMetas = new ArrayList<>();
+        SinglePhotoMetaParser singlePhotoMetaParser = new SinglePhotoMetaParser();
         for (int i = 0; i < jPhotos.length(); i++) {
-            final Photo photo = singlePhotoParser.parse(jPhotos.getJSONObject(i));
-            photos.add(photo);
+            final PhotoMeta photoMeta = singlePhotoMetaParser.parse(jPhotos.getJSONObject(i));
+            photoMetas.add(photoMeta);
         }
 
-        return new PhotoResponse(totalCount, photos, hasNext);
+        return new PhotoMetasResponse(totalCount, photoMetas, hasNext);
     }
 }

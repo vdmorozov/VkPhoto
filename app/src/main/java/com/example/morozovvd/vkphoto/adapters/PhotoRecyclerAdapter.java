@@ -11,12 +11,10 @@ import android.widget.ImageView;
 
 import com.example.morozovvd.vkphoto.PhotoManager;
 import com.example.morozovvd.vkphoto.R;
-import com.example.morozovvd.vkphoto.objects.Photo;
+import com.example.morozovvd.vkphoto.objects.PhotoMeta;
 import com.example.morozovvd.vkphoto.tasks.ImageDownloadTask;
 
 import java.lang.ref.WeakReference;
-import java.util.HashMap;
-import java.util.Map;
 
 import okhttp3.HttpUrl;
 
@@ -61,7 +59,7 @@ public class PhotoRecyclerAdapter extends RecyclerView.Adapter {
     public void onBindViewHolder(@NonNull final RecyclerView.ViewHolder holder, final int position) {
         final PhotoViewHolder photoViewHolder = (PhotoViewHolder) holder;
         final ImageView imageView = photoViewHolder.mImageView;
-        final Photo photo = mPhotoManager.get(position);
+        final PhotoMeta photoMeta = mPhotoManager.get(position);
 
         //todo: вынести задание listener-а в метод setOnPhotoClickListener()
         //todo: попробовать перенести связывание listener-а с фоткой внутрь ViewHolder
@@ -73,7 +71,7 @@ public class PhotoRecyclerAdapter extends RecyclerView.Adapter {
             @Override
             public void onClick(View v) {
                 if (onPhotoClickListener != null) {
-                    onPhotoClickListener.onPhotoClick(photo, holder.getAdapterPosition());
+                    onPhotoClickListener.onPhotoClick(photoMeta, holder.getAdapterPosition());
                 }
             }
         });
@@ -96,7 +94,7 @@ public class PhotoRecyclerAdapter extends RecyclerView.Adapter {
                         }
                     };
 
-            String urlString = photo.getCopy(COPY_TYPE_FOR_PREVIEW).getUrl();
+            String urlString = photoMeta.getCopy(COPY_TYPE_FOR_PREVIEW).getUrl();
             HttpUrl url = HttpUrl.parse(urlString);
             ImageDownloadTask<WeakReference<ImageView>> imageDownloadTask = new ImageDownloadTask<>(
                     url,
@@ -114,6 +112,6 @@ public class PhotoRecyclerAdapter extends RecyclerView.Adapter {
     }
 
     public interface OnPhotoClickListener {
-        void onPhotoClick(Photo photo, int position);
+        void onPhotoClick(PhotoMeta photoMeta, int position);
     }
 }

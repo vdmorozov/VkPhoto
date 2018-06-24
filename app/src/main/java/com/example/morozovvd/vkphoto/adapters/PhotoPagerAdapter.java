@@ -11,7 +11,7 @@ import android.widget.ImageView;
 
 import com.example.morozovvd.vkphoto.PhotoManager;
 import com.example.morozovvd.vkphoto.R;
-import com.example.morozovvd.vkphoto.objects.Photo;
+import com.example.morozovvd.vkphoto.objects.PhotoMeta;
 import com.example.morozovvd.vkphoto.tasks.ImageDownloadTask;
 
 import java.lang.ref.WeakReference;
@@ -43,7 +43,7 @@ public class PhotoPagerAdapter extends PagerAdapter {
     @Override
     public Object instantiateItem(@NonNull ViewGroup container, final int position) {
         if (position == mPhotoManager.getCount() - 1) mPhotoManager.fetchNextPage();
-        final Photo photo = mPhotoManager.get(position);
+        final PhotoMeta photoMeta = mPhotoManager.get(position);
         final ImageView imageView = (ImageView) LayoutInflater.from(container.getContext())
                 .inflate(R.layout.item_photo_fullscreen, container, false);
 
@@ -73,7 +73,7 @@ public class PhotoPagerAdapter extends PagerAdapter {
                         }
                     };
 
-            Photo.Copy fullscreenCopy = getFullscreenCopy(photo);
+            PhotoMeta.Copy fullscreenCopy = getFullscreenCopy(photoMeta);
 
             if (fullscreenCopy != null) {
                 String urlString = fullscreenCopy.getUrl();
@@ -108,18 +108,18 @@ public class PhotoPagerAdapter extends PagerAdapter {
         return view.equals(object);
     }
 
-    private Photo.Copy getFullscreenCopy(Photo photo) {
+    private PhotoMeta.Copy getFullscreenCopy(PhotoMeta photoMeta) {
         //todo: вынести в константы (?)
-        List<Photo.Copy.Type> fullscreenTypesByPriority = new ArrayList<>();
-        fullscreenTypesByPriority.add(Photo.Copy.Type.PROPORTIONAL_1280);
-        fullscreenTypesByPriority.add(Photo.Copy.Type.PROPORTIONAL_807);
-        fullscreenTypesByPriority.add(Photo.Copy.Type.PROPORTIONAL_604);
-        fullscreenTypesByPriority.add(Photo.Copy.Type.PROPORTIONAL_130);
-        fullscreenTypesByPriority.add(Photo.Copy.Type.PROPORTIONAL_75);
+        List<PhotoMeta.Copy.Type> fullscreenTypesByPriority = new ArrayList<>();
+        fullscreenTypesByPriority.add(PhotoMeta.Copy.Type.PROPORTIONAL_1280);
+        fullscreenTypesByPriority.add(PhotoMeta.Copy.Type.PROPORTIONAL_807);
+        fullscreenTypesByPriority.add(PhotoMeta.Copy.Type.PROPORTIONAL_604);
+        fullscreenTypesByPriority.add(PhotoMeta.Copy.Type.PROPORTIONAL_130);
+        fullscreenTypesByPriority.add(PhotoMeta.Copy.Type.PROPORTIONAL_75);
 
-        Photo.Copy copy = null;
-        for (Photo.Copy.Type type : fullscreenTypesByPriority) {
-            copy = photo.getCopy(type);
+        PhotoMeta.Copy copy = null;
+        for (PhotoMeta.Copy.Type type : fullscreenTypesByPriority) {
+            copy = photoMeta.getCopy(type);
             if (copy != null) break;
         }
         return copy;

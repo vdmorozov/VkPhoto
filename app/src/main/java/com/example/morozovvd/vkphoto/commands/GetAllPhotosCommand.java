@@ -1,12 +1,12 @@
 package com.example.morozovvd.vkphoto.commands;
 
-import com.example.morozovvd.vkphoto.objects.PhotoResponse;
-import com.example.morozovvd.vkphoto.parsers.PhotoListParser;
+import com.example.morozovvd.vkphoto.objects.PhotoMetasResponse;
+import com.example.morozovvd.vkphoto.parsers.PhotoMetasParser;
 
 import java.util.HashMap;
 import java.util.Map;
 
-public class GetAllPhotosCommand extends VkApiCommand<PhotoResponse> {
+public class GetAllPhotosCommand extends VkApiCommand<PhotoMetasResponse> {
 
     private static final String KEY_OWNER_ID = "owner_id";
     private static final String KEY_COUNT = "count";
@@ -68,6 +68,6 @@ public class GetAllPhotosCommand extends VkApiCommand<PhotoResponse> {
 
     @Override
     protected Parser getParser() {
-        return new PhotoListParser();
+        return new PhotoMetasParser();
     }
 }

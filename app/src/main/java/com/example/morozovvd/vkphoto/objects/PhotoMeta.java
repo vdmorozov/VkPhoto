@@ -8,7 +8,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
-public class Photo implements Serializable {
+public class PhotoMeta implements Serializable {
 
     private final int id;
     private final int albumId;
@@ -33,7 +33,7 @@ public class Photo implements Serializable {
 
     private final Map<Copy.Type, Copy> copies;
 
-    public Photo(
+    public PhotoMeta(
             int id,
             int albumId,
             int ownerId,

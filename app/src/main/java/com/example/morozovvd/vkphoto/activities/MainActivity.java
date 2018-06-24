@@ -10,13 +10,13 @@ import com.example.morozovvd.vkphoto.NetworkHelper;
 import com.example.morozovvd.vkphoto.PhotoManager;
 import com.example.morozovvd.vkphoto.adapters.PhotoRecyclerAdapter;
 import com.example.morozovvd.vkphoto.R;
-import com.example.morozovvd.vkphoto.objects.Photo;
+import com.example.morozovvd.vkphoto.objects.PhotoMeta;
 
 public class MainActivity extends AppCompatActivity {
 
     public static final int COLUMN_COUNT = 4;
     static final int AUTH_REQUEST = 1;
-    public static final Photo.Copy.Type COPY_TYPE_FOR_PREVIEW = Photo.Copy.Type.CUT_320;
+    public static final PhotoMeta.Copy.Type COPY_TYPE_FOR_PREVIEW = PhotoMeta.Copy.Type.CUT_320;
 
     private RecyclerView mPhotosRecyclerView;
     private GridLayoutManager mLayoutManager;
@@ -36,7 +36,7 @@ public class MainActivity extends AppCompatActivity {
         mPhotoRecyclerAdapter = new PhotoRecyclerAdapter(PhotoManager.getInstance());
         mPhotoRecyclerAdapter.setOnPhotoClickListener(new PhotoRecyclerAdapter.OnPhotoClickListener() {
             @Override
-            public void onPhotoClick(Photo photo, int position) {
+            public void onPhotoClick(PhotoMeta photoMeta, int position) {
                 Intent intent = FullscreenActivity.getCallingIntent(MainActivity.this, position);
                 startActivity(intent);
             }

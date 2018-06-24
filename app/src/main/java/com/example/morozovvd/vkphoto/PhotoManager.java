@@ -6,8 +6,8 @@ import android.graphics.Bitmap;
 import android.util.LruCache;
 
 import com.example.morozovvd.vkphoto.commands.GetMyPhotosCommand;
-import com.example.morozovvd.vkphoto.objects.Photo;
-import com.example.morozovvd.vkphoto.objects.PhotoResponse;
+import com.example.morozovvd.vkphoto.objects.PhotoMeta;
+import com.example.morozovvd.vkphoto.objects.PhotoMetasResponse;
 import com.example.morozovvd.vkphoto.tasks.VkApiTask;
 
 import java.lang.ref.WeakReference;
@@ -24,13 +24,13 @@ public class PhotoManager implements VkApiTask.ResponseHandler {
     private int page = -1;
     private boolean loadingInProgress = false;
     private boolean loadedAll = false;
-    private List<Photo> photos;
+    private List<PhotoMeta> photoMetas;
     private DataSetObservable observable;
     private LruCache<Integer, Bitmap> fullscreenCache;
     private LruCache<Integer, Bitmap> thumbnailCache;
 
     private PhotoManager() {
-        photos = new ArrayList<>();
+        photoMetas = new ArrayList<>();
         observable = new DataSetObservable();
         fullscreenCache = new LruCache<>(PAGE_SIZE);
         thumbnailCache = new LruCache<>(PAGE_SIZE * 3);
@@ -44,11 +44,11 @@ public class PhotoManager implements VkApiTask.ResponseHandler {
     }
 
     public int getCount() {
-        return photos.size();
+        return photoMetas.size();
     }
 
-    public Photo get(int position) {
-        return photos.get(position);
+    public PhotoMeta get(int position) {
+        return photoMetas.get(position);
     }
 
     public LruCache<Integer, Bitmap> getFullscreenCache() {
@@ -93,10 +93,10 @@ public class PhotoManager implements VkApiTask.ResponseHandler {
         switch (commandId) {
             case FETCH_NEXT_PAGE:
                 loadingInProgress = false;
-                PhotoResponse photoResponse = (PhotoResponse) response;
-                loadedAll = photoResponse.getList().isEmpty();
+                PhotoMetasResponse photoMetasResponse = (PhotoMetasResponse) response;
+                loadedAll = photoMetasResponse.getPhotoMetas().isEmpty();
                 if (loadedAll) break;
-                photos.addAll(photoResponse.getList());
+                photoMetas.addAll(photoMetasResponse.getPhotoMetas());
                 observable.notifyChanged();
                 break;
             default:

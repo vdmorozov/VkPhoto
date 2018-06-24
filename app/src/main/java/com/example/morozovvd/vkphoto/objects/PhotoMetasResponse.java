@@ -2,14 +2,14 @@ package com.example.morozovvd.vkphoto.objects;
 
 import java.util.List;
 
-public class PhotoResponse {
+public class PhotoMetasResponse {
     private final int totalCount;
-    private final List<Photo> list;
+    private final List<PhotoMeta> photoMetas;
     private final boolean hasNext;
 
-    public PhotoResponse(int totalCount, List<Photo> list, boolean hasNext) {
+    public PhotoMetasResponse(int totalCount, List<PhotoMeta> photoMetas, boolean hasNext) {
         this.totalCount = totalCount;
-        this.list = list;
+        this.photoMetas = photoMetas;
         this.hasNext = hasNext;
     }
 
@@ -17,8 +17,8 @@ public class PhotoResponse {
         return totalCount;
     }
 
-    public List<Photo> getList() {
-        return list;
+    public List<PhotoMeta> getPhotoMetas() {
+        return photoMetas;
     }
 
     public boolean hasNext() {
