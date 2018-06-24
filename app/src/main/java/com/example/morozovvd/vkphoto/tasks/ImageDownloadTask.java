@@ -30,6 +30,8 @@ public class ImageDownloadTask<CallbackParamsT> extends AsyncTask<Void, Void, Bi
 
     @Override
     protected Bitmap doInBackground(Void... voids) {
+        // точно ли нужно выносить такие зависимости? запрос от либы OkHttp,
+        // хэлпер аналогично получается из синглтона в БО и не вынесен в параметры
         Request request = new Request.Builder().url(imageUrl).build();
         OkHttpClient client = NetworkHelper.getInstance().getHttpClient();
 
