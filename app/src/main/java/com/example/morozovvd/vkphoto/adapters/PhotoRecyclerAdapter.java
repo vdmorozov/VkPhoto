@@ -46,7 +46,7 @@ public class PhotoRecyclerAdapter extends RecyclerView.Adapter {
         });
     }
 
-    public void addOnPhotoClickListener(OnPhotoClickListener listener) {
+    public void setOnPhotoClickListener(OnPhotoClickListener listener) {
         onPhotoClickListener = listener;
     }
 
@@ -63,7 +63,7 @@ public class PhotoRecyclerAdapter extends RecyclerView.Adapter {
         final ImageView imageView = photoViewHolder.mImageView;
         final Photo photo = mPhotoManager.get(position);
 
-        //todo: вынести задание listener-а в метод addOnPhotoClickListener()
+        //todo: вынести задание listener-а в метод setOnPhotoClickListener()
         //todo: попробовать перенести связывание listener-а с фоткой внутрь ViewHolder
         //todo: лучше понять, почему надо использовать holder.getAdapterPosition()
 

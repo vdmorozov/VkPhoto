@@ -34,7 +34,7 @@ public class MainActivity extends AppCompatActivity {
         mPhotosRecyclerView.setLayoutManager(mLayoutManager);
 
         mPhotoRecyclerAdapter = new PhotoRecyclerAdapter(PhotoManager.getInstance());
-        mPhotoRecyclerAdapter.addOnPhotoClickListener(new PhotoRecyclerAdapter.OnPhotoClickListener() {
+        mPhotoRecyclerAdapter.setOnPhotoClickListener(new PhotoRecyclerAdapter.OnPhotoClickListener() {
             @Override
             public void onPhotoClick(Photo photo, int position) {
                 Intent intent = FullscreenActivity.getCallingIntent(MainActivity.this, position);
