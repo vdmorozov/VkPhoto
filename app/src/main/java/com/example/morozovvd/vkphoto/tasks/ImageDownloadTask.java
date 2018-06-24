@@ -31,7 +31,7 @@ public class ImageDownloadTask<CallbackParamsT> extends AsyncTask<Void, Void, Bi
     @Override
     protected Bitmap doInBackground(Void... voids) {
         Request request = new Request.Builder().url(imageUrl).build();
-        OkHttpClient client = NetworkHelper.getHttpClient();
+        OkHttpClient client = NetworkHelper.getInstance().getHttpClient();
 
         Response response = null;
         try {

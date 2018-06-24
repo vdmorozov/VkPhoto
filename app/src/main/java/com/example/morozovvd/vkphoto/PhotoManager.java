@@ -36,8 +36,10 @@ public class PhotoManager implements VkApiTask.ResponseHandler {
         thumbnailCache = new LruCache<>(PAGE_SIZE * 3);
     }
 
-    public static PhotoManager getInstance() {
-        if (instance == null) instance = new PhotoManager();
+    public synchronized static PhotoManager getInstance() {
+        if (instance == null) {
+            instance = new PhotoManager();
+        }
         return instance;
     }
 

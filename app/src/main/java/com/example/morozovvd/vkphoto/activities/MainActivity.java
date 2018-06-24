@@ -58,7 +58,7 @@ public class MainActivity extends AppCompatActivity {
 
 
         //todo: отслеживание состояния авторизации
-        boolean authorized = (NetworkHelper.getToken() != null);
+        boolean authorized = (NetworkHelper.getInstance().getToken() != null);
 
         if (!authorized) {
             Intent oauthActivityIntent = new Intent(this, OauthActivity.class);
@@ -69,7 +69,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == AUTH_REQUEST && resultCode == RESULT_OK) {
-            NetworkHelper.setToken(data.getStringExtra(OauthActivity.EXTRA_TOKEN));
+            NetworkHelper.getInstance().setToken(data.getStringExtra(OauthActivity.EXTRA_TOKEN));
             PhotoManager.getInstance().fetchNextPage();
         } else {
             //todo: show auth error

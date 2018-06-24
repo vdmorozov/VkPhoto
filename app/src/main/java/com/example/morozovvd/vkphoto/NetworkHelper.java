@@ -4,18 +4,30 @@ import okhttp3.OkHttpClient;
 
 public class NetworkHelper {
 
-    private static String token;
-    private static OkHttpClient httpClient;
+    private static NetworkHelper instance;
 
-    public static void setToken(String token) {
-        NetworkHelper.token = token;
+    private String token;
+    private OkHttpClient httpClient;
+
+    private NetworkHelper() {
     }
 
-    public static String getToken() {
+    public synchronized static NetworkHelper getInstance() {
+        if (instance == null) {
+            instance = new NetworkHelper();
+        }
+        return instance;
+    }
+
+    public void setToken(String token) {
+        this.token = token;
+    }
+
+    public String getToken() {
         return token;
     }
 
-    public static OkHttpClient getHttpClient() {
+    public OkHttpClient getHttpClient() {
         if (httpClient == null) {
             httpClient = new OkHttpClient();
         }

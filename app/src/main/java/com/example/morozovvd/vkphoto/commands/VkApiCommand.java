@@ -17,14 +17,14 @@ import okhttp3.ResponseBody;
 public abstract class VkApiCommand<T> {
 
     public T execute() throws IOException, JSONException {
-        OkHttpClient client = NetworkHelper.getHttpClient();
+        OkHttpClient client = NetworkHelper.getInstance().getHttpClient();
 
         HttpUrl.Builder urlBuilder = new HttpUrl.Builder()
                 .scheme("https")
                 .host("api.vk.com")
                 .addPathSegment("method")
                 .addPathSegment(getMethodName())
-                .addQueryParameter("access_token", NetworkHelper.getToken())
+                .addQueryParameter("access_token", NetworkHelper.getInstance().getToken())
                 .addQueryParameter("v", "5.74");
 
         for (Map.Entry<String, String> param: getParams().entrySet()) {
