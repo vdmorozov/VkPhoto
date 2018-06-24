@@ -51,7 +51,9 @@ public class ImageDownloadTask<CallbackParamsT> extends AsyncTask<Void, Void, Bi
 
     @Override
     protected void onPostExecute(Bitmap bitmap) {
-        responseHandler.onImageDownloaded(bitmap, imageUrl, callbackParams);
+        if (responseHandler != null && bitmap != null) {
+            responseHandler.onImageDownloaded(bitmap, imageUrl, callbackParams);
+        }
     }
 
     public interface ResponseHandler<T> {
