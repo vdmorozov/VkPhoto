@@ -1,15 +1,14 @@
 package com.example.morozovvd.vkphoto.adapters;
 
-import android.database.DataSetObserver;
 import android.graphics.Bitmap;
 import android.support.annotation.NonNull;
 import android.support.v4.view.PagerAdapter;
+import android.util.LruCache;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 
-import com.example.morozovvd.vkphoto.PhotoManager;
 import com.example.morozovvd.vkphoto.R;
 import com.example.morozovvd.vkphoto.objects.PhotoMeta;
 import com.example.morozovvd.vkphoto.tasks.ImageDownloadTask;
@@ -22,28 +21,30 @@ import okhttp3.HttpUrl;
 
 public class PhotoPagerAdapter extends PagerAdapter {
 
-    private PhotoManager mPhotoManager;
+    private List<PhotoMeta> mPhotoMetas;
+
+    private LruCache<Integer, Bitmap> mBitmapCache;
     private OnItemClickListener clickListener;
 
-    public PhotoPagerAdapter(PhotoManager manager) {
-        mPhotoManager = manager;
-        mPhotoManager.registerObserver(new DataSetObserver() {
-            @Override
-            public void onChanged() {
-                notifyDataSetChanged();
-            }
-        });
+    public PhotoPagerAdapter(LruCache<Integer, Bitmap> bitmapCache) {
+        mBitmapCache = bitmapCache;
+        mPhotoMetas = new ArrayList<>();
     }
 
     public void setOnItemClickListener(OnItemClickListener listener) {
         clickListener = listener;
     }
 
+    public void addPhotoMetas(List<PhotoMeta> photoMetas) {
+        mPhotoMetas.addAll(photoMetas);
+        notifyDataSetChanged();
+    }
+
     @NonNull
     @Override
     public Object instantiateItem(@NonNull ViewGroup container, final int position) {
-        if (position == mPhotoManager.getCount() - 1) mPhotoManager.fetchNextPage();
-        final PhotoMeta photoMeta = mPhotoManager.get(position);
+
+        final PhotoMeta photoMeta = mPhotoMetas.get(position);
         final ImageView imageView = (ImageView) LayoutInflater.from(container.getContext())
                 .inflate(R.layout.item_photo_fullscreen, container, false);
 
@@ -57,7 +58,7 @@ public class PhotoPagerAdapter extends PagerAdapter {
         }
 
         //todo: привести в порядок это дерьмо
-        Bitmap cached = mPhotoManager.getFullscreenCache().get(position);
+        Bitmap cached = mBitmapCache.get(position);
         if (cached != null) {
             imageView.setImageBitmap(cached);
         } else {
@@ -65,7 +66,7 @@ public class PhotoPagerAdapter extends PagerAdapter {
                     new ImageDownloadTask.ResponseHandler<WeakReference<ImageView>>() {
                         @Override
                         public void onImageDownloaded(Bitmap image, HttpUrl imageUrl, WeakReference<ImageView> callbackParams) {
-                            mPhotoManager.getFullscreenCache().put(position, image);
+                            mBitmapCache.put(position, image);
                             ImageView view = callbackParams.get();
                             if (view != null) {
                                 view.setImageBitmap(image);
@@ -95,7 +96,7 @@ public class PhotoPagerAdapter extends PagerAdapter {
 
     @Override
     public int getCount() {
-        return mPhotoManager.getCount();
+        return mPhotoMetas.size();
     }
 
     @Override
@@ -109,7 +110,6 @@ public class PhotoPagerAdapter extends PagerAdapter {
     }
 
     private PhotoMeta.Copy getFullscreenCopy(PhotoMeta photoMeta) {
-        //todo: вынести в константы (?)
         List<PhotoMeta.Copy.Type> fullscreenTypesByPriority = new ArrayList<>();
         fullscreenTypesByPriority.add(PhotoMeta.Copy.Type.PROPORTIONAL_1280);
         fullscreenTypesByPriority.add(PhotoMeta.Copy.Type.PROPORTIONAL_807);

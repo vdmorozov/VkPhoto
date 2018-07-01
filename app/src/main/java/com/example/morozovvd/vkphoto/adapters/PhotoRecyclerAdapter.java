@@ -1,20 +1,21 @@
 package com.example.morozovvd.vkphoto.adapters;
 
-import android.database.DataSetObserver;
 import android.graphics.Bitmap;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
+import android.util.LruCache;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 
-import com.example.morozovvd.vkphoto.PhotoManager;
 import com.example.morozovvd.vkphoto.R;
 import com.example.morozovvd.vkphoto.objects.PhotoMeta;
 import com.example.morozovvd.vkphoto.tasks.ImageDownloadTask;
 
 import java.lang.ref.WeakReference;
+import java.util.ArrayList;
+import java.util.List;
 
 import okhttp3.HttpUrl;
 
@@ -22,7 +23,9 @@ import static com.example.morozovvd.vkphoto.activities.MainActivity.COPY_TYPE_FO
 
 public class PhotoRecyclerAdapter extends RecyclerView.Adapter {
 
-    private PhotoManager mPhotoManager;
+    private List<PhotoMeta> mPhotoMetas;
+
+    private LruCache<Integer, Bitmap> mBitmapCache;
     private OnPhotoClickListener onPhotoClickListener;
 
     public static class PhotoViewHolder extends RecyclerView.ViewHolder {
@@ -34,14 +37,14 @@ public class PhotoRecyclerAdapter extends RecyclerView.Adapter {
         }
     }
 
-    public PhotoRecyclerAdapter(PhotoManager manager) {
-        mPhotoManager = manager;
-        manager.registerObserver(new DataSetObserver() {
-            @Override
-            public void onChanged() {
-                notifyDataSetChanged();
-            }
-        });
+    public PhotoRecyclerAdapter(LruCache<Integer, Bitmap> bitmapCache) {
+        mBitmapCache = bitmapCache;
+        mPhotoMetas = new ArrayList<>();
+    }
+
+    public void addPhotoMetas(List<PhotoMeta> photoMetas) {
+        mPhotoMetas.addAll(photoMetas);
+        notifyDataSetChanged();
     }
 
     public void setOnPhotoClickListener(OnPhotoClickListener listener) {
@@ -59,9 +62,8 @@ public class PhotoRecyclerAdapter extends RecyclerView.Adapter {
     public void onBindViewHolder(@NonNull final RecyclerView.ViewHolder holder, final int position) {
         final PhotoViewHolder photoViewHolder = (PhotoViewHolder) holder;
         final ImageView imageView = photoViewHolder.mImageView;
-        final PhotoMeta photoMeta = mPhotoManager.get(position);
+        final PhotoMeta photoMeta = mPhotoMetas.get(position);
 
-        //todo: вынести задание listener-а в метод setOnPhotoClickListener()
         //todo: попробовать перенести связывание listener-а с фоткой внутрь ViewHolder
         //todo: лучше понять, почему надо использовать holder.getAdapterPosition()
 
@@ -78,7 +80,7 @@ public class PhotoRecyclerAdapter extends RecyclerView.Adapter {
 
         //todo: убрать это говнокодище
 
-        Bitmap cached = mPhotoManager.getThumbnailCache().get(position);
+        Bitmap cached = mBitmapCache.get(position);
         if (cached != null) {
             imageView.setImageBitmap(cached);
         } else {
@@ -86,7 +88,7 @@ public class PhotoRecyclerAdapter extends RecyclerView.Adapter {
                     new ImageDownloadTask.ResponseHandler<WeakReference<ImageView>>() {
                         @Override
                         public void onImageDownloaded(Bitmap image, HttpUrl imageUrl, WeakReference<ImageView> callbackParams) {
-                            mPhotoManager.getThumbnailCache().put(position, image);
+                            mBitmapCache.put(position, image);
                             ImageView view = callbackParams.get();
                             if (view != null) {
                                 view.setImageBitmap(image);
@@ -108,7 +110,7 @@ public class PhotoRecyclerAdapter extends RecyclerView.Adapter {
 
     @Override
     public int getItemCount() {
-        return mPhotoManager.getCount();
+        return mPhotoMetas.size();
     }
 
     public interface OnPhotoClickListener {

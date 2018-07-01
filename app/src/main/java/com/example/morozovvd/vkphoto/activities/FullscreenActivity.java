@@ -12,17 +12,26 @@ import android.view.View;
 import com.example.morozovvd.vkphoto.PhotoManager;
 import com.example.morozovvd.vkphoto.adapters.PhotoPagerAdapter;
 import com.example.morozovvd.vkphoto.R;
+import com.example.morozovvd.vkphoto.commands.GetMyPhotosCommand;
+import com.example.morozovvd.vkphoto.objects.PhotoMetasResponse;
+import com.example.morozovvd.vkphoto.tasks.VkApiTask;
 
-public class FullscreenActivity extends AppCompatActivity {
+import java.lang.ref.WeakReference;
+
+public class FullscreenActivity extends AppCompatActivity implements VkApiTask.ResponseHandler {
 
     public static final String EXTRA_POSITION = "position";
+    public static final String FETCH_NEXT_PAGE = "FETCH_NEXT_PAGE";
 
     public static final int INITIAL_HIDE_DELAY = 100;
+    private static final int PAGE_SIZE = 15;
 
     private boolean mVisible;
     private ViewPager mViewPager;
     private PhotoPagerAdapter mPhotoPagerAdapter;
 
+    private boolean loadingInProgress = false;
+    private boolean loadedAll = false;
 
     static public Intent getCallingIntent(Context context, int position) {
         Intent callingIntent = new Intent(context, FullscreenActivity.class);
@@ -39,7 +48,27 @@ public class FullscreenActivity extends AppCompatActivity {
 
         mViewPager = findViewById(R.id.photo_pager);
 
-        mPhotoPagerAdapter = new PhotoPagerAdapter(PhotoManager.getInstance());
+        mPhotoPagerAdapter = new PhotoPagerAdapter(PhotoManager.getInstance().getFullscreenCache());
+        mPhotoPagerAdapter.addPhotoMetas(PhotoManager.getInstance().getPhotoMetas());
+        mViewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+            @Override
+            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+
+            }
+
+            @Override
+            public void onPageSelected(int position) {
+                //todo: подгрузка заранее
+                if (position == mPhotoPagerAdapter.getCount() - 1) {
+                    onScrolledToLast();
+                }
+            }
+
+            @Override
+            public void onPageScrollStateChanged(int state) {
+
+            }
+        });
         mViewPager.setAdapter(mPhotoPagerAdapter);
         mViewPager.setCurrentItem(position);
 
@@ -52,6 +81,49 @@ public class FullscreenActivity extends AppCompatActivity {
                 toggle();
             }
         });
+    }
+
+    private void onScrolledToLast() {
+        load(PAGE_SIZE, mPhotoPagerAdapter.getCount());
+    }
+
+    private void load(int count, int offset) {
+        if (loadingInProgress || loadedAll) return;
+
+        loadingInProgress = true;
+        //для увеличения производительности можно сделать команды мутабельными и
+        //переиспользовать команду, меняя count и offset
+        GetMyPhotosCommand command = new GetMyPhotosCommand(
+                count,
+                offset,
+                false,
+                false,
+                true,
+                false,
+                false
+        );
+
+        VkApiTask getPhotoListTask = new VkApiTask(
+                command,
+                FETCH_NEXT_PAGE,
+                new WeakReference<>((VkApiTask.ResponseHandler) this)
+        );
+        getPhotoListTask.execute();
+    }
+
+    @Override
+    public void onVkApiTaskResponse(Object response, String commandId) {
+        switch (commandId) {
+            case FETCH_NEXT_PAGE:
+                loadingInProgress = false;
+                PhotoMetasResponse photoMetasResponse = (PhotoMetasResponse) response;
+                loadedAll = photoMetasResponse.getPhotoMetas().isEmpty();
+                if (loadedAll) break;
+                mPhotoPagerAdapter.addPhotoMetas(photoMetasResponse.getPhotoMetas());
+                break;
+            default:
+                //do nothing
+        }
     }
 
     @Override
